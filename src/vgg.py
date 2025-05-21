@@ -94,13 +94,25 @@ class VGGBase(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y)
+        loss = self.loss_fn(logits, y)
         acc = self.metric(logits, y)
         self.log("loss/val_loss", loss, **self.log_opt)
         self.log("acc/val_acc", acc, **self.log_opt)
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=1e-4)
+        opt = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=0.0)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            opt, mode="max", factor=0.1, patience=10, threshold=0.005
+        )
+        return {
+            "optimizer": opt,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "acc/train_acc",
+                "interval": "epoch",
+                "frequency": 1,
+            },
+        }
 
 
 class VGG16(VGGBase):
