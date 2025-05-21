@@ -8,6 +8,8 @@ setup(
         'hydra-core>=1.3',
         'torch>=2.2',
         'torchvision>=0.22',
+        'pytorch-lightning>=2.5'
+        'hydra_submitit_launcher>=1.1.0'
     ],
     extras_require={
         'log': ['wandb>=0.19'],
