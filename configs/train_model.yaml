@@ -10,7 +10,7 @@ run:
 model:
   name: vgg11
   dropout: 0.51
-  lr: 1e-3
+  lr: 7e-4
 
 
 data:
@@ -18,9 +18,9 @@ data:
   num_channels: 3
   num_classes: 10
   num_workers: 0
-  batch_size: 32
+  batch_size: 64
 
 trainer:
-  max_epochs: 50
+  max_epochs: 100
   accelerator: "auto"
   devices: "auto"
