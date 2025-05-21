@@ -7,7 +7,7 @@ hydra:
   run:
     dir: ./logs/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
   sweep:
-    dir: ./logs/multirun/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ./logs/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
     subdir: cfg:${hydra.job.override_dirname}/seed=${seed}
   launcher:
     submitit_folder: ${hydra.sweep.dir}/.submitit/%j
