@@ -1,0 +1,26 @@
+defaults:
+  - hydra_base
+  - data/base
+  - logging/wandb
+  - _self_
+
+run:
+  name: "train-vgg11-cifar10"
+
+model:
+  name: vgg11
+  dropout: 0.51
+  lr: 1e-3
+
+
+data:
+  name: cifar10
+  num_channels: 3
+  num_classes: 10
+  num_workers: 0
+  batch_size: 32
+
+trainer:
+  max_epochs: 50
+  accelerator: "auto"
+  devices: "auto"

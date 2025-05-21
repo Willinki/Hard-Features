@@ -1,0 +1,11 @@
+wandb_entity: "willinki-bocconi-university"
+wandb_project: "Hard-Features"
+wandb_log_dir: ./logs/wandb
+local_log_dir: ./logs
+
+checkpoints:
+  local_dir: ./logs/checkpoints
+
+metrics:
+  monitor: "acc/val_acc"
+  mode: "max"
