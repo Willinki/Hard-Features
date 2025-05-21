@@ -2,6 +2,8 @@ defaults:
   - override hydra/launcher: submitit_slurm
 
 hydra:
+  job:
+    name: "train_model"
   run:
     dir: ./logs/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
   sweep:
