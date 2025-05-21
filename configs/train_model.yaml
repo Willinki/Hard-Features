@@ -5,7 +5,7 @@ defaults:
   - _self_
 
 run:
-  name: "train-vgg11-cifar10"
+  name: "train-vgg-cifar10"
 
 model:
   name: vgg11
