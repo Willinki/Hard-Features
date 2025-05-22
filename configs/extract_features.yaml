@@ -1,0 +1,21 @@
+defaults:
+  - hydra_base
+  - data/base
+  - logging/wandb
+  - _self_
+
+
+model:
+  name: vgg16
+  feature_name: "features"
+  artifact: "willinki-bocconi-university/Hard-Features/vgg16-weights:v1"
+
+starting_data:
+  name: cifar10
+  num_channels: 3
+  num_classes: 10
+  num_workers: 0
+  batch_size: 64
+
+features_data:
+  name: ${starting_data.name}-${model.name}-${model.feature_name}
