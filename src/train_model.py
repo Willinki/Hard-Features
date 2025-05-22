@@ -39,7 +39,7 @@ def train_model(cfg: DictConfig):
         mode=cfg.logging.metrics.mode,
         save_top_k=1,
         dirpath=cfg.logging.checkpoints.local_dir,
-        filename=f"{cfg.model.name}-{{epoch:02d}}-{{val_acc:.4f}}",
+        filename=f"{cfg.model.name}-{{epoch:02d}}-{{acc/val_acc:.4f}}",
     )
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
 
