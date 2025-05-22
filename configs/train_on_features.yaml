@@ -1,0 +1,26 @@
+defaults:
+  - hydra_base
+  - data/base
+  - logging/wandb
+  - _self_
+
+run:
+  name: "train-perceptron-on-features"
+
+features_data:
+  artifact_path: ${logging.wandb_entity}/${logging.wandb_project}
+  artifact_name: cifar10-vgg19-features:v0
+  preprocess:
+    rescale: true
+    binarize: true
+
+model:
+  hidden_dims: [1000, 10]
+  activations: ["relu", "identity"]
+  lr: 5e-3
+  weight_decay: 0
+
+trainer:
+  max_epochs: 20
+  accelerator: "auto"
+  devices: "auto"

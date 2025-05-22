@@ -56,7 +56,7 @@ def train_model(cfg: DictConfig):
     # Train
     wandb_logger.watch(model, log="all")
     trainer.fit(model, datamodule=datamodule)
-
+    trainer.test(model, datamodule=datamodule)
     # Save best model as artifact
     best_model_path = checkpoint_callback.best_model_path
     artifact = wandb.Artifact(f"{cfg.model.name}-weights", type="model")

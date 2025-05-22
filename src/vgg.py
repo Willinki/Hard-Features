@@ -2,7 +2,6 @@ from typing import List
 import torch
 import torchmetrics
 import torch.nn as nn
-import torch.nn.functional as F
 import pytorch_lightning as pl
 import logging
 
@@ -98,6 +97,14 @@ class VGGBase(pl.LightningModule):
         acc = self.metric(logits, y)
         self.log("loss/val_loss", loss, **self.log_opt)
         self.log("acc/val_acc", acc, **self.log_opt)
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        logits = self(x)
+        loss = self.loss_fn(logits, y)
+        acc = self.metric(logits, y)
+        self.log("loss/test_loss", loss, **self.log_opt)
+        self.log("acc/test_acc", acc, **self.log_opt)
 
     def configure_optimizers(self):
         opt = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=0.0)

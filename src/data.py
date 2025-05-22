@@ -1,5 +1,6 @@
 from typing import Optional, Tuple, Type
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
+import torch
 from torchvision.datasets import CIFAR10
 import pytorch_lightning as pl
 import torchvision.transforms as transforms
@@ -42,11 +43,13 @@ class BaseClassificationDataModule(pl.LightningDataModule):
         )
         train_dataset = self.dataset_cls(self.data_dir, train=True, transform=transform)
         test_dataset = self.dataset_cls(self.data_dir, train=False, transform=transform)
-
         val_size = int(0.1 * len(train_dataset))
         train_size = len(train_dataset) - val_size
-        self.train_dataset, self.val_dataset = random_split(
-            train_dataset, [train_size, val_size]
+        self.train_dataset = torch.utils.data.Subset(
+            train_dataset, range(0, train_size)
+        )
+        self.val_dataset = torch.utils.data.Subset(
+            train_dataset, range(train_size, train_size + val_size)
         )
         self.test_dataset = test_dataset
 

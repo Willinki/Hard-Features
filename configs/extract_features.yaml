@@ -8,7 +8,9 @@ defaults:
 model:
   name: vgg16
   feature_name: "features"
-  artifact: "willinki-bocconi-university/Hard-Features/vgg16-weights:v1"
+  artifact_name: "vgg16-weights:v1"
+  artifact_path: ${logging.wandb_entity}/${logging.wandb_project}
+  artifact: ${model.artifact_path}/${model.artifact_name}
 
 starting_data:
   name: cifar10
