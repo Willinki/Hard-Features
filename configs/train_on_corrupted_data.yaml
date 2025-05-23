@@ -1,0 +1,29 @@
+defaults:
+  - hydra_base
+  - data/base
+  - logging/wandb
+  - _self_
+
+run:
+  name: "train-perceptron-corrupted-data"
+
+model:
+  hidden_dims: [1000, 10]
+  activations: ["relu", "identity"]
+  lr: 1e-3
+  weight_decay: 0
+
+data:
+  name: fashion
+  num_channels: 1
+  num_classes: 10
+  num_workers: 0
+  batch_size: 64
+
+corruption:
+  binarize: true
+
+trainer:
+  max_epochs: 100
+  accelerator: "auto"
+  devices: "auto"

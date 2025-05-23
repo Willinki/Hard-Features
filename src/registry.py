@@ -1,5 +1,5 @@
 from src.vgg import VGG11, VGG16, VGG19
-from src.data import CIFAR10DataModule
+from src.data import CIFAR10DataModule, MNISTDataModule, FashionMNISTDataModule
 
 
 def model_registry():
@@ -13,4 +13,6 @@ def model_registry():
 def dataset_registry():
     return {
         "cifar10": CIFAR10DataModule,
+        "mnist": MNISTDataModule,
+        "fashion": FashionMNISTDataModule,
     }
