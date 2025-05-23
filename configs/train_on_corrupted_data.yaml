@@ -18,14 +18,21 @@ data:
   num_channels: 1
   num_classes: 10
   num_workers: 0
-  batch_size: 64
+  batch_size: 128
 
 corruption:
-  key: "random"
+  key: "rotation"
   args:
-    image_shape: [1, 28, 28]
-    pixel_ratio: 0.1
-    seed: 44
+  # random
+  #  image_shape: [1, 28, 28]
+  #  pixel_ratio: 0.1
+  #  seed: 44
+
+  # flatten
+  # placeholder: 1
+
+  # rotation
+    degrees: 180
 
 trainer:
   max_epochs: 100

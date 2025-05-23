@@ -1,4 +1,5 @@
 import torch
+import torchvision.transforms.v2 as transforms
 import numpy as np
 import random
 from typing import Tuple
@@ -201,4 +202,5 @@ corruption_registry = {
     "random": RandomPixelSampler,
     "patch": PatchSampler,
     "structured": StructuredMask,
+    "rotation": transforms.RandomRotation,
 }

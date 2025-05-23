@@ -5,7 +5,7 @@ from typing import List, Callable
 import pytorch_lightning as pl
 from src.registry import dataset_registry
 from src.perceptron import MLP, BaseClassifier
-from src.corruption import corruption_registry, Binarize
+from src.corruption import corruption_registry, Binarize, Flatten
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def get_transform(cfg):
     corruption = corruption_registry[cfg.corruption.key]
     corruption = corruption(**cfg.corruption.args)
-    return [corruption, Binarize()]
+    return [corruption, Flatten(), Binarize()]
 
 
 def get_data(cfg: DictConfig, transforms: List[Callable]):
