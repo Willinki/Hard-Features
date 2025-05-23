@@ -14,14 +14,18 @@ model:
   weight_decay: 0
 
 data:
-  name: fashion
+  name: mnist
   num_channels: 1
   num_classes: 10
   num_workers: 0
   batch_size: 64
 
 corruption:
-  binarize: true
+  key: "random"
+  args:
+    image_shape: [1, 28, 28]
+    pixel_ratio: 0.1
+    seed: 44
 
 trainer:
   max_epochs: 100

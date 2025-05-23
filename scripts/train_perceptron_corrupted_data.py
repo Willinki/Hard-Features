@@ -5,13 +5,15 @@ from typing import List, Callable
 import pytorch_lightning as pl
 from src.registry import dataset_registry
 from src.perceptron import MLP, BaseClassifier
-from src.corruption import RandomPixelSampler, Flatten, Binarize
+from src.corruption import corruption_registry, Binarize
 
 logger = logging.getLogger(__name__)
 
 
 def get_transform(cfg):
-    return [Flatten(), Binarize()]
+    corruption = corruption_registry[cfg.corruption.key]
+    corruption = corruption(**cfg.corruption.args)
+    return [corruption, Binarize()]
 
 
 def get_data(cfg: DictConfig, transforms: List[Callable]):

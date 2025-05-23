@@ -5,6 +5,9 @@ from typing import Tuple
 
 
 class Flatten:
+    def __init__(self, **kwargs):
+        pass
+
     def __call__(self, img):
         return img.flatten()
 
@@ -191,3 +194,11 @@ class StructuredMask:
             masked_img[c][~mask] = self.mask_value
         # Return only unmasked pixels per channel as a flat vector
         return masked_img[:, mask].flatten()
+
+
+corruption_registry = {
+    "flatten": Flatten,
+    "random": RandomPixelSampler,
+    "patch": PatchSampler,
+    "structured": StructuredMask,
+}
