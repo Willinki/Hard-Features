@@ -152,7 +152,7 @@ class BaseClassifier(pl.LightningModule):
             return hook
 
         for name, module in self.module.named_modules():
-            if isinstance(module, (TanhBeta)):  # Add other types if needed
+            if isinstance(module, (TanhBeta, nn.Identity)):  # Add other types if needed
                 module.register_forward_hook(get_hook(name))
 
     def training_step(self, batch, batch_idx):
