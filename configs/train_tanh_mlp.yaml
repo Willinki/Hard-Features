@@ -1,0 +1,30 @@
+defaults:
+  - hydra_base
+  - data/base
+  - logging/wandb
+  - _self_
+
+run:
+  name: "train-tanh-mlp-mnist"
+
+model:
+  name: tanh_perceptron
+  input_dim: 784
+  flatten: true
+  output_dims: [1000, 10]
+  lr: 7e-4
+  weight_decay: 1e-4
+  beta: 1.0
+
+
+data:
+  name: mnist
+  num_channels: 1
+  num_classes: 10
+  num_workers: 0
+  batch_size: 64
+
+trainer:
+  max_epochs: 20
+  accelerator: "auto"
+  devices: "auto"
