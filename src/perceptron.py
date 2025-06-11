@@ -19,15 +19,19 @@ ACT2FN = {
 
 
 class TanhBeta(nn.Module):
-    def __init__(self, beta: float):
+    def __init__(self, beta: float, binary: bool = False):
         super().__init__()
         assert isinstance(beta, (int, float)), "Beta must be a number"
         self.beta = beta
         self.tanh = nn.Tanh()
+        self.binary = binary
 
     def forward(self, x):
         x = self.tanh(self.beta * x)
-        return x
+        if not self.binary:
+            return x
+        binary_out = x.sign()
+        return x + (binary_out - x).detach()
 
 
 class PerceptronBlock(nn.Module):
@@ -44,14 +48,19 @@ class PerceptronBlock(nn.Module):
 
 class TanhBetaPerceptronBlock(PerceptronBlock):
     def __init__(
-        self, input_dim: int, output_dim: int, beta: float, activation: str = "relu"
+        self,
+        input_dim: int,
+        output_dim: int,
+        beta: float,
+        binary: bool,
+        activation: str = "relu",
     ):
         logger.warning(
             "activation is ignored in TanhBetaPerceptronBlock: current value is %s",
             activation,
         )
         super().__init__(input_dim, output_dim, activation)
-        self.activation = TanhBeta(beta)
+        self.activation = TanhBeta(beta, binary)
 
 
 class MLP(nn.Module):
@@ -94,9 +103,11 @@ class TanhBetaMLP(MLP):
         input_dim: int,
         output_dims: List[int],
         beta: float,
+        binary: bool = False,
         flatten: bool = False,
     ):
         self.beta = beta
+        self.binary = binary
         super().__init__(input_dim, output_dims, output_dims, flatten)
 
     def _create_layers(self):
@@ -107,7 +118,9 @@ class TanhBetaMLP(MLP):
                 self.layers.append(PerceptronBlock(input_dim, out_dim, "identity"))
             else:
                 self.layers.append(
-                    TanhBetaPerceptronBlock(input_dim, out_dim, self.beta, "ignored")
+                    TanhBetaPerceptronBlock(
+                        input_dim, out_dim, self.beta, self.binary, "ignored"
+                    )
                 )
             input_dim = out_dim
         self.model = nn.Sequential(*self.layers)
@@ -122,6 +135,7 @@ class BaseClassifier(pl.LightningModule):
         lr: float = 1e-3,
         weight_decay: float = 0.0,
         register_activation: bool = True,
+        register_concentration: bool = True,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -139,7 +153,28 @@ class BaseClassifier(pl.LightningModule):
         if register_activation:
             self.activation_logs = {}
             self._register_activation_hooks()
+        if register_concentration:
+            self.concentration_logs = {}
+            self._register_concentration_hooks()
         logger.info("Base model initialized")
+
+    def _register_concentration_hooks(self):
+        logger.info("Registering concentration")
+
+        def get_hook(name):
+            def hook(module, input, output):
+                if self.training:
+                    self.concentration_logs[name] = (
+                        (output.detach().cpu().abs() < 0.99).float().mean().item()
+                    )
+
+            return hook
+
+        # Log output of the tanh inside TanhBeta
+        for name, module in self.module.named_modules():
+            if isinstance(module, TanhBeta):
+                # Register on the inner nn.Tanh module
+                module.tanh.register_forward_hook(get_hook(f"{name}_tanh_out"))
 
     def _register_activation_hooks(self):
         logger.info("Registering activations")
@@ -152,8 +187,14 @@ class BaseClassifier(pl.LightningModule):
             return hook
 
         for name, module in self.module.named_modules():
-            if isinstance(module, (TanhBeta, nn.Identity)):  # Add other types if needed
-                module.register_forward_hook(get_hook(name))
+            # Log output of each block
+            if isinstance(module, (TanhBetaPerceptronBlock, PerceptronBlock)):
+                module.register_forward_hook(get_hook(f"{name}_out"))
+
+            # Log output of the tanh inside TanhBeta
+            if isinstance(module, TanhBeta):
+                # Register on the inner nn.Tanh module
+                module.tanh.register_forward_hook(get_hook(f"{name}_tanh_out"))
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -165,9 +206,19 @@ class BaseClassifier(pl.LightningModule):
         if self.global_step % 100 == 0:
             if not hasattr(self, "step"):
                 self.step = 1
-            for name, act in self.activation_logs.items():
+            for name_act, act in self.activation_logs.items():
                 wandb.log(
-                    {f"activations/{name}": wandb.Histogram(act)},
+                    {
+                        f"activations/{name_act}": wandb.Histogram(act),
+                    },
+                    step=self.step,
+                    commit=False,
+                )
+            for name_conc, conc in self.concentration_logs.items():
+                wandb.log(
+                    {
+                        f"concentration/{name_conc}": conc,
+                    },
                     step=self.step,
                     commit=False,
                 )

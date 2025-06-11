@@ -1,4 +1,5 @@
 import os
+import torch
 from omegaconf import DictConfig, OmegaConf
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
@@ -7,6 +8,7 @@ import wandb
 import logging
 from src.registry import model_registry, dataset_registry
 from src.perceptron import BaseClassifier
+from src.transforms import SignTransform, RandomProjectionTransform
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,7 @@ def train_model(cfg: DictConfig):
         output_dims=cfg.model.output_dims,
         beta=cfg.model.beta,
         flatten=cfg.model.flatten,
+        binary=cfg.model.binary,
     )
     model = BaseClassifier(
         base_module=model,
@@ -37,10 +40,20 @@ def train_model(cfg: DictConfig):
         lr=cfg.model.lr,
         weight_decay=cfg.model.weight_decay,
     )
+    transforms = []
+    if cfg.data.project:
+        transforms.append(
+            RandomProjectionTransform(
+                dim_in=cfg.data.data_size, dim_out=cfg.model.input_dim
+            )
+        )
+    if cfg.data.binarize:
+        transforms.append(SignTransform())
     datamodule = dataset_registry()[cfg.data.name](
         data_dir=cfg.data.path,
         batch_size=cfg.data.batch_size,
         num_workers=cfg.data.num_workers,
+        transforms=transforms,
     )
 
     logger.info("init callbacks")

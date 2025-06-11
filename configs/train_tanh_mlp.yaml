@@ -4,17 +4,19 @@ defaults:
   - logging/wandb
   - _self_
 
-run:
-  name: "train-tanh-mlp-mnist"
-
 model:
   name: tanh_perceptron
-  input_dim: 784
-  flatten: true
+  input_dim: 100
   output_dims: [1000, 10]
   lr: 7e-4
   weight_decay: 1e-4
   beta: 1.0
+  binary: true
+  flatten: false
+
+run:
+  name: "train-tanh-mlp(binary:${model.binary})-mnist(binary:${data.binarize},projected:${data.project})"
+
 
 
 data:
@@ -22,7 +24,10 @@ data:
   num_channels: 1
   num_classes: 10
   num_workers: 0
+  data_size: 784
   batch_size: 64
+  binarize: true
+  project: true
 
 trainer:
   max_epochs: 20

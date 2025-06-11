@@ -1,11 +1,11 @@
 #!/bin/bash
 
-betas=(0.5 1.0 2.0 5.0 10.0)
-weight_decays=(0.00001 0.0001 0.001 0.01 0.1)
+betas=(1000)
+binary=(true)
 
 for beta in "${betas[@]}"; do
-    for weight_decay in "${weight_decays[@]}"; do
-        echo "Running with model.beta=$beta and model.weight_decay=$weight_decay"
-        python3 scripts/train_tanh_mlp.py beta=$beta weight_decay=$weight_decay
+    for binary in "${binary[@]}"; do
+        echo "Running with model.beta=$beta and model.binary=$binary"
+        python3 scripts/train_tanh_mlp.py model.beta=$beta model.binary=$binary trainer.max_epochs=200 model.lr=5e-5
     done
 done

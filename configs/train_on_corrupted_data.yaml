@@ -21,18 +21,18 @@ data:
   batch_size: 128
 
 corruption:
-  key: "rotation"
+  key: "random"
   args:
   # random
-  #  image_shape: [1, 28, 28]
-  #  pixel_ratio: 0.1
-  #  seed: 44
+    image_shape: [1, 28, 28]
+    pixel_ratio: 0.2
+    seed: 44
 
   # flatten
   # placeholder: 1
 
   # rotation
-    degrees: 180
+  # degrees: 180
 
 trainer:
   max_epochs: 100
